@@ -42,3 +42,12 @@ class Deck(object):
 
         logger.info("Shuffling deck {}".format(self.name))
         random.shuffle(self.deck_status)
+
+    def draw_card(self):
+        """
+        Extract the first card of the deck.
+
+        :return: The top deck card
+        """
+        draw = self.deck_status.pop(0)
+        return draw

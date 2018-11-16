@@ -1,5 +1,3 @@
-import sys
-import os
 import argparse
 import logging
 from pathlib import Path
@@ -10,6 +8,16 @@ from game.game import MagicGame
 
 logger = logging.getLogger()
 logging.basicConfig(level=logging.INFO)
+
+
+def play_magic(game_config_dir: Path, player_1_deck_file: Path,
+               player_2_deck_file: Path):
+
+    game = MagicGame(game_config_dir=game_config_dir,
+                     player_1_deck_file=player_1_deck_file,
+                     player_2_deck_file=player_2_deck_file)
+
+    game.start_game()
 
 
 def main():
@@ -32,9 +40,10 @@ def main():
     player_1_deck_file = validate_input_file(file_path=args.deck_1, file_types=[".txt"])
     player_2_deck_file = validate_input_file(file_path=args.deck_2, file_types=[".txt"])
 
-    MagicGame(game_config_dir=game_config_file,
-              player_1_deck_file=player_1_deck_file,
-              player_2_deck_file=player_2_deck_file)
+    play_magic(game_config_dir=game_config_file,
+               player_1_deck_file=player_1_deck_file,
+               player_2_deck_file=player_2_deck_file)
+
 
 if __name__ == '__main__':
     main()

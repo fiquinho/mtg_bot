@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 from game.deck import Deck
+from game.player import Player
 
 
 logger = logging.getLogger()
@@ -27,6 +28,22 @@ class MagicGame(object):
         self.top_deck = game_config["top_deck"]
         self.lands_turn = game_config["lands_turn"]
 
-        self.deck_1 = Deck(deck_file=player_1_deck_file, name="p1_deck")
+        logger.info("Player 1 will be playing the deck {}".format(player_1_deck_file))
+        logger.info("Player 2 will be playing the deck {}".format(player_2_deck_file))
 
-        pass
+        self.deck_1 = Deck(deck_file=player_1_deck_file, name="p1_deck")
+        self.deck_2 = Deck(deck_file=player_2_deck_file, name="p2_deck")
+
+        self.player_1 = Player(deck=self.deck_1, hp=self.players_life)
+        self.player_2 = Player(deck=self.deck_2, hp=self.players_life)
+
+        self.turns_count = 0
+
+    def start_game(self):
+
+        # Shuffle the decks
+        self.deck_1.shuffle_deck()
+        self.deck_2.shuffle_deck()
+
+        self.player_1.draw_card(self.draw_initial)
+        self.player_2.draw_card(self.draw_initial)
