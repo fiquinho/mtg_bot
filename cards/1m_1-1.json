@@ -11,7 +11,7 @@
                   {"cost": [],
                    "action": ["block"],
                    "trigger": null,
-                   "available_steps": ["block"]}
+                   "available_phases": ["block"]}
     ],
   "attack": 1,
   "defense": 1

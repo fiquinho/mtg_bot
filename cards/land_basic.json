@@ -2,7 +2,7 @@
   "name": "Basic Land",
   "type": "land",
   "other_types": ["basic"],
-  "cost": [0],
+  "cost": 0,
   "abilities": [{"cost": ["tap_this"],
-                 "action": ["add_mana_basic"]}]
+                 "actions": ["add_mana_basic"]}]
 }

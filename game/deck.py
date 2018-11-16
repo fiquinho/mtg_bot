@@ -3,6 +3,8 @@ import logging
 from pathlib import Path
 from copy import deepcopy
 
+from game.card import Card
+
 
 logger = logging.getLogger()
 
@@ -21,6 +23,7 @@ class Deck(object):
             for line in file:
                 self.deck_list.append(line[:-1])
         self.check_deck_cards()
+        self.deck_list = [Card(card_name) for card_name in self.deck_list]
 
         self.deck_status = deepcopy(self.deck_list)
 
@@ -43,7 +46,7 @@ class Deck(object):
         logger.info("Shuffling deck {}".format(self.name))
         random.shuffle(self.deck_status)
 
-    def draw_card(self):
+    def draw_card(self) -> Card:
         """
         Extract the first card of the deck.
 

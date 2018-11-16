@@ -38,6 +38,9 @@ class MagicGame(object):
         self.player_2 = Player(deck=self.deck_2, hp=self.players_life)
 
         self.turns_count = 0
+        self.game_ended = False
+        self.player_focus = self.player_1
+        self.player_focus_not = self.player_2
 
     def start_game(self):
 
@@ -45,5 +48,40 @@ class MagicGame(object):
         self.deck_1.shuffle_deck()
         self.deck_2.shuffle_deck()
 
+        # Each player draws the first hand
         self.player_1.draw_card(self.draw_initial)
         self.player_2.draw_card(self.draw_initial)
+
+        while not self.game_ended:
+
+            if self.turns_count > 0:
+                self.player_focus.draw_card()
+            else:
+                if self.first_draw:
+                    self.player_focus.draw_card()
+
+
+
+
+
+
+            if self.turns_count > 25:
+                break
+            self.turns_count += 1
+
+
+class Turn(object):
+
+    def __init__(self, game: MagicGame):
+        self.game = game
+
+
+class Phase(object):
+
+    def __init__(self, game: MagicGame):
+        self.game = game
+
+
+class MainPhase(Phase):
+    def __init__(self, game: MagicGame):
+        Phase.__init__(self, game=game)
