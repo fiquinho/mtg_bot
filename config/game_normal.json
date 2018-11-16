@@ -1,0 +1,9 @@
+{
+  "name": "Normal Game",
+  "players_life": 10,
+  "first_draw": false,
+  "draw_initial": 4,
+  "max_cards_hand": 4,
+  "top_deck": 1,
+  "lands_turn": 1
+ }

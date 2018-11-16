@@ -1,0 +1,18 @@
+{
+  "name": "Fico",
+  "type": "creature",
+  "other_types": [],
+  "cost": [1],
+  "abilities": [
+                  {"cost": ["tap_this"],
+                   "action": ["attack"],
+                   "trigger": null,
+                   "available_steps": ["combat"]},
+                  {"cost": [],
+                   "action": ["block"],
+                   "trigger": null,
+                   "available_steps": ["block"]}
+    ],
+  "attack": 1,
+  "defense": 1
+}
