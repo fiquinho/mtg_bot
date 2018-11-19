@@ -4,6 +4,8 @@ from pathlib import Path
 
 from game.deck import Deck
 from game.player import Player
+from game.board import Board
+
 
 
 logger = logging.getLogger()
@@ -42,6 +44,8 @@ class MagicGame(object):
         self.player_focus = self.player_1
         self.player_focus_not = self.player_2
 
+        self.board = Board(self)
+
     def start_game(self):
 
         # Shuffle the decks
@@ -54,16 +58,7 @@ class MagicGame(object):
 
         while not self.game_ended:
 
-            if self.turns_count > 0:
-                self.player_focus.draw_card()
-            else:
-                if self.first_draw:
-                    self.player_focus.draw_card()
-
-
-
-
-
+            turn = Turn(game=self, player=self.player_focus)
 
             if self.turns_count > 25:
                 break
@@ -72,16 +67,29 @@ class MagicGame(object):
 
 class Turn(object):
 
-    def __init__(self, game: MagicGame):
+    def __init__(self, game: MagicGame, player: Player):
         self.game = game
+        self.player = player
+
+    def start(self):
+        main_phase = MainPhase(self)
 
 
 class Phase(object):
 
-    def __init__(self, game: MagicGame):
-        self.game = game
+    def __init__(self, turn: Turn):
+        self.game = turn.game
+        self.player = turn.player
+        self.name = None
+
+    def start_phase(self):
+        raise NotImplementedError
 
 
 class MainPhase(Phase):
-    def __init__(self, game: MagicGame):
-        Phase.__init__(self, game=game)
+    def __init__(self, turn: Turn):
+        Phase.__init__(self, turn)
+        self.name = "main"
+
+    def start_phase(self):
+        pass

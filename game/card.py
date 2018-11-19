@@ -27,3 +27,7 @@ class Card(object):
 
     def __str__(self):
         return self.name
+
+    def playable(self, mana_pool: int):
+        # TODO: Need to rework this for different mana types
+        return self.cost <= mana_pool
