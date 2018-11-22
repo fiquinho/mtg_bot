@@ -3,14 +3,46 @@ import json
 
 from pathlib import Path
 
+from game.player import Player
+from game.action import ActionList
+
 
 logger = logging.getLogger()
 
 
 class GameEngine(object):
 
-    def __init__(self):
-        pass
+    def __init__(self, player_1: Player, player_2: Player):
+        self.player_1 = player_1
+        self.player_2 = player_2
+
+        self.player_focus = player_1
+        self.player_focus_not = player_2
+
+        self.turns_count = 0
+        self.game_ended = False
+
+    @staticmethod
+    def start_game(game_name: str):
+        logger.info("")
+        logger.info("")
+        logger.info("######################################")
+        logger.info("Starting new magic game: {}".format(game_name))
+        logger.info("######################################")
+        logger.info("")
+
+    @staticmethod
+    def print_players_actions(actions: ActionList):
+        logger.info("   Available actions:")
+        if len(actions.list) > 0:
+            for i, action in actions:
+                logger.info("       {} _ {}".format(i, action))
+
+    @staticmethod
+    def print_players_hand(player: Player):
+        logger.info("   Player hand:")
+        for card in player.hand:
+            logger.info("       {}".format(card))
 
 
 class GameConfiguration(object):
@@ -20,9 +52,6 @@ class GameConfiguration(object):
         with open(game_config_dir, "r", encoding="utf8") as file:
             game_config = json.load(file)
         logger.info("Game configurations:")
-        for key, value in game_config.items():
-            logger.info("{} = {}".format(key, value))
-
         for key, value in game_config.items():
             logger.info("{} = {}".format(key, value))
 
