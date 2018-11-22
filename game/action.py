@@ -6,8 +6,8 @@ from game.player import Player
 
 class Action(object):
 
-    def __init__(self):
-        pass
+    def __init__(self, player: Player):
+        self.player = player
 
     def __str__(self):
         raise NotImplementedError
@@ -24,13 +24,13 @@ class ActionList(object):
         for idx, action in self.list.items():
             yield idx, action
 
-    def add_pass(self):
-        self.list[len(self.list) + 1] = NullAction()
+    def add_pass(self, player: Player):
+        self.list[len(self.list) + 1] = NullAction(player=player)
 
 
 class NullAction(Action):
-    def __init__(self):
-        Action.__init__(self)
+    def __init__(self, player: Player):
+        Action.__init__(self, player=player)
 
     def __str__(self):
         return "Pass"
@@ -38,8 +38,8 @@ class NullAction(Action):
 
 class LandSpell(Action):
 
-    def __init__(self, land_card: Card):
-        Action.__init__(self)
+    def __init__(self, player: Player, land_card: Card):
+        Action.__init__(self, player=player)
         self.land_card = land_card
 
     def __str__(self):
@@ -52,20 +52,20 @@ def get_hand_actions(player: Player, can_play_land: bool) -> ActionList:
         if card.cost <= player.mana_pool:
             if card.type == "land":
                 if can_play_land:
-                    hand_actions.append(create_action_by_card_type(card))
+                    hand_actions.append(create_action_by_card_type(card=card, player=player))
             else:
-                hand_actions.append(create_action_by_card_type(card))
+                hand_actions.append(create_action_by_card_type(card=card, player=player))
 
     hand_actions_list = ActionList(actions=hand_actions)
 
     return hand_actions_list
 
 
-def create_action_by_card_type(card: Card):
+def create_action_by_card_type(card: Card, player: Player):
     action = None
 
     if card.type == "land":
-        action = LandSpell(land_card=card)
+        action = LandSpell(land_card=card, player=player)
 
     if action is None:
         raise ValueError("Error with card type {}".format(card.type))

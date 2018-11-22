@@ -50,5 +50,5 @@ class MainPhase(Phase):
         
         action_list = get_hand_actions(player=self.turn.player,
                                        can_play_land=self.turn.game_config.lands_turn > 0)
-        action_list.add_pass()
+        action_list.add_pass(player=self.turn.player)
         return action_list
