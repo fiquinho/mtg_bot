@@ -5,11 +5,11 @@
   "cost": [1],
   "abilities": [
                   {"cost": ["tap_this"],
-                   "action": ["attack"],
+                   "actions": ["attack"],
                    "trigger": null,
-                   "available_phases": ["combat"]},
-                  {"cost": [],
-                   "action": ["block"],
+                   "available_phases": ["attack"]},
+                  {"cost": ["ready"],
+                   "actions": ["block"],
                    "trigger": null,
                    "available_phases": ["block"]}
     ],

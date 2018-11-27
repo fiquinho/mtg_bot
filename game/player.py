@@ -19,6 +19,9 @@ class Player(object):
 
         self.board = [self.lands, self.creatures]
 
+        self.attacking_creatures = []
+        self.blocking_creatures = []
+
     def draw_card(self, cards_count: int=1):
         for i in range(cards_count):
             draw_card = self.deck.draw_card()
@@ -27,3 +30,7 @@ class Player(object):
 
     def refresh_land_spells(self, lands_turn: int):
         self.land_spells = lands_turn
+
+    def untap_lands(self):
+        for land_card in self.lands:
+            land_card.status = "ready"
