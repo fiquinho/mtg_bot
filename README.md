@@ -19,3 +19,9 @@ Optional arguments:
     Defaults to 'config/deck_basic.txt'.
 - **--deck_2** Deck file for player 2 (.txt). 
     Defaults to 'config/deck_basic.txt'.
+
+Basic usage:
+
+````bash
+python test_game.py
+````
