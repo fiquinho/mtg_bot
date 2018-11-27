@@ -83,9 +83,20 @@ class AddBasicMana(Action):
         return "ok"
 
 
-def create_action_by_name(player: Player, name: str) -> Action:
+def create_action_by_name(player: Player, name: str, card: Card=None) -> Action:
     if name == "add_mana_basic":
-        action = AddBasicMana(player)
+        action = AddBasicMana(player=player)
+
+    elif name == "deploy_creature":
+        if card is None:
+            raise ValueError("Can't create action DeployCreature with card = None")
+        action = DeployCreature(player=player, card=card)
+
+    elif name == "deploy_land":
+        if card is None:
+            raise ValueError("Can't create action DeployLand with card = None")
+        action = DeployLand(player=player, land_card=card)
+
     else:
         raise ValueError("Action name {} unknown.".format(name))
 

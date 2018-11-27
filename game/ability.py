@@ -2,7 +2,7 @@ from typing import List
 
 from game.player import Player
 from game.card import Card
-from game.action import Action, create_action_by_name, DeployLand, NullAction, DeployCreature
+from game.action import Action, create_action_by_name, NullAction
 from game.cost import AbilityCosts
 
 
@@ -58,52 +58,57 @@ class AbilityList(object):
         self.list[len(self.list) + 1] = Pass(player=player)
 
 
-def get_hand_abilities(player: Player) -> List[Ability]:
+def get_hand_abilities(player: Player, phase: str) -> List[Ability]:
     hand_abilities = []
     for card in player.hand:
-        if card.cost <= player.mana_pool:
-            if card.type == "land":
-                if player.land_spells > 0:
-                    hand_abilities.append(Ability(player=player,
-                                                  card=card,
-                                                  costs=[card.cost],
-                                                  actions=[DeployLand(player, card)]))
-            elif card.type == "creature":
-                hand_abilities.append(Ability(player=player,
-                                              card=card,
-                                              costs=[card.cost],
-                                              actions=[DeployCreature(player, card)]))
 
-            else:
-                pass
+        if phase in card.available_phases:
+            actions = []
+            for action in card.actions:
+                actions.append(create_action_by_name(player, action, card))
+
+                ability = Ability(player=player, costs=card.cost,
+                                  actions=actions, card=card)
+                check_cost = ability.check_costs()
+
+                if check_cost:
+                    hand_abilities.append(ability)
+                else:
+                    continue
 
     return hand_abilities
 
 
-def get_lands_actions(player: Player) -> List[Ability]:
-    land_actions = []
-    for land_card in player.lands:
-        for ability in land_card.abilities:
-            ability_object = create_card_ability(player, card=land_card, ability_data=ability)
+def get_board_abilities(player: Player, phase: str) -> List[Ability]:
 
-            if ability_object is not None:
-                land_actions.append(ability_object)
+    board_actions = []
 
-    return land_actions
+    for board_group in player.board:
+        for card in board_group:
+            for ability in card.abilities:
+                ability_object = create_card_ability(player, card=card, ability_data=ability, phase=phase)
+
+                if ability_object is not None:
+                    board_actions.append(ability_object)
+
+    return board_actions
 
 
-def create_card_ability(player: Player, card: Card, ability_data: dict):
+def create_card_ability(player: Player, card: Card, ability_data: dict, phase: str):
     ability_cost = ability_data["cost"]
 
-    actions = []
-    for action in ability_data["actions"]:
-        actions.append(create_action_by_name(player, action))
+    if phase in ability_data["available_phases"]:
+        actions = []
+        for action in ability_data["actions"]:
+            actions.append(create_action_by_name(player, action, card))
 
-    ability = Ability(player=player, costs=ability_cost,
-                      actions=actions, card=card)
-    check_cost = ability.check_costs()
+        ability = Ability(player=player, costs=ability_cost,
+                          actions=actions, card=card)
+        check_cost = ability.check_costs()
 
-    if check_cost:
-        return ability
+        if check_cost:
+            return ability
+        else:
+            return None
     else:
         return None

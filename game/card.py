@@ -22,6 +22,8 @@ class Card(object):
         self.cost = card_data["cost"]
         self.type = card_data["type"]
         self.location = "deck"
+        self.actions = card_data["actions"]
+        self.abilities = card_data["abilities"]
 
     def __str__(self):
         return self.name
@@ -35,7 +37,8 @@ class LandCard(Card):
             card_data = json.load(file)
 
         self.other_types = card_data["other_types"]
-        self.abilities = card_data["abilities"]
+
+        self.available_phases = ["main", "second"]
 
 
 class CreatureCard(Card):
@@ -46,9 +49,10 @@ class CreatureCard(Card):
             card_data = json.load(file)
 
         self.other_types = card_data["other_types"]
-        self.abilities = card_data["abilities"]
         self.attack = card_data["attack"]
         self.defense = card_data["defense"]
+
+        self.available_phases = ["main", "second"]
 
 
 def create_card_by_type(card: str):

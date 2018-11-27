@@ -1,7 +1,7 @@
 import logging
 
 from game.game_engine import GameConfiguration, GameEngine
-from game.ability import get_hand_abilities, get_lands_actions, AbilityList
+from game.ability import get_hand_abilities, get_board_abilities, AbilityList
 
 
 logger = logging.getLogger()
@@ -33,8 +33,16 @@ class Phase(object):
     def start_phase(self):
         raise NotImplementedError
 
-    def get_available_actions(self):
-        raise NotImplementedError
+    def get_available_abilities(self):
+        abilities_list = get_hand_abilities(player=self.turn.player, phase=self.name)
+
+        board_abilities = get_board_abilities(player=self.turn.player, phase=self.name)
+        if len(board_abilities) >= 1:
+            abilities_list += board_abilities
+
+        final_abilities_list = AbilityList(abilities_list)
+        final_abilities_list.add_pass(player=self.turn.player)
+        return final_abilities_list
 
 
 class MainPhase(Phase):
@@ -50,32 +58,23 @@ class MainPhase(Phase):
             self.turn.game_engine.print_board_state(self.turn.game_engine.player_1,
                                                     self.turn.game_engine.player_2)
             self.turn.game_engine.print_players_hand(self.turn.player)
-            available_abilities = self.get_available_actions()
+            available_abilities = self.get_available_abilities()
             self.turn.game_engine.print_players_actions(available_abilities)
-            logger.info("{} please select action: ".format(self.turn.player.name))
+            logger.info("{} please select an ability: ".format(self.turn.player.name))
 
             # Player selection
             while True:
                 selection = input("{} please select action: ".format(self.turn.player.name))
                 try:
-                    selected_action = available_abilities.list[int(selection)]
+                    selected_ability = available_abilities.list[int(selection)]
                     break
                 except KeyError:
                     logger.info("[ {} ] not in available choices".format(selection))
 
-            action_end = selected_action.execute()
+            action_end = selected_ability.execute()
 
             if action_end is None:
                 break
 
-    def get_available_actions(self) -> AbilityList:
-        
-        action_list = get_hand_abilities(player=self.turn.player)
 
-        lands_action_list = get_lands_actions(player=self.turn.player)
-        if len(lands_action_list) >= 1:
-            action_list += lands_action_list
 
-        final_action_list = AbilityList(action_list)
-        final_action_list.add_pass(player=self.turn.player)
-        return final_action_list

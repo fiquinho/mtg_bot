@@ -2,7 +2,7 @@
   "name": "Fico",
   "type": "creature",
   "other_types": [],
-  "cost": 1,
+  "cost": [1],
   "abilities": [
                   {"cost": ["tap_this"],
                    "action": ["attack"],
@@ -15,5 +15,6 @@
     ],
   "attack": 1,
   "defense": 1,
-  "status": "sickness"
+  "status": "sickness",
+  "actions": ["deploy_creature"]
 }

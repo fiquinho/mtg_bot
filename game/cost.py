@@ -60,11 +60,24 @@ class TapCard(BaseCost):
         card.status = "tapped"
 
 
+class LandSpell(BaseCost):
+    def __init__(self):
+        pass
+
+    def check_cost(self, player: Player, card: Card):
+        return player.land_spells >= 1
+
+    def pay_cost(self, player: Player, card: Card):
+        player.land_spells -= 1
+
+
 def create_cost_instance(cost) -> BaseCost:
     if type(cost) == int:
         cost_instance = ManaCost(cost)
     elif cost == "tap_this":
         cost_instance = TapCard()
+    elif cost == "land_spell":
+        cost_instance = LandSpell()
     else:
         raise ValueError("{} mana cost unknown".format(cost))
 
