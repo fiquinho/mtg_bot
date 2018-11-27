@@ -1,7 +1,7 @@
 import logging
 
 from game.game_engine import GameConfiguration, GameEngine
-from game.action import get_hand_actions
+from game.ability import get_hand_abilities, get_lands_actions, AbilityList
 
 
 logger = logging.getLogger()
@@ -42,13 +42,37 @@ class MainPhase(Phase):
         self.name = "main"
 
     def start_phase(self):
-        self.turn.game_engine.print_players_hand(self.turn.player)
-        available_actions = self.get_available_actions()
-        self.turn.game_engine.print_players_actions(available_actions)
+        logger.info("Main phase start - {}".format(self.turn.player.name))
+        self.turn.player.refresh_land_spells(lands_turn=self.turn.game_config.lands_turn)
 
-    def get_available_actions(self):
+        while True:
+            self.turn.game_engine.print_players_hand(self.turn.player)
+            available_abilities = self.get_available_actions()
+            self.turn.game_engine.print_players_actions(available_abilities)
+            logger.info("{} please select action: ".format(self.turn.player.name))
+
+            # Player selection
+            while True:
+                selection = input("{} please select action: ".format(self.turn.player.name))
+                try:
+                    selected_action = available_abilities.list[int(selection)]
+                    break
+                except KeyError:
+                    logger.info("[ {} ] not in available choices".format(selection))
+
+            action_end = selected_action.execute()
+
+            if action_end is None:
+                break
+
+    def get_available_actions(self) -> AbilityList:
         
-        action_list = get_hand_actions(player=self.turn.player,
-                                       can_play_land=self.turn.game_config.lands_turn > 0)
-        action_list.add_pass(player=self.turn.player)
-        return action_list
+        action_list = get_hand_abilities(player=self.turn.player)
+
+        lands_action_list = get_lands_actions(player=self.turn.player)
+        if len(lands_action_list) >= 1:
+            action_list += lands_action_list
+
+        final_action_list = AbilityList(action_list)
+        final_action_list.add_pass(player=self.turn.player)
+        return final_action_list

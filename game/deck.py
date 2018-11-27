@@ -3,7 +3,7 @@ import logging
 from pathlib import Path
 from copy import deepcopy
 
-from game.card import Card
+from game.card import Card, create_card_by_type
 
 
 logger = logging.getLogger()
@@ -23,7 +23,7 @@ class Deck(object):
             for line in file:
                 self.deck_list.append(line[:-1])
         self.check_deck_cards()
-        self.deck_list = [Card(card_name) for card_name in self.deck_list]
+        self.deck_list = [create_card_by_type(card_name) for card_name in self.deck_list]
 
         self.deck_status = deepcopy(self.deck_list)
 

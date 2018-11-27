@@ -1,7 +1,10 @@
-from typing import List
+import logging
 
 from game.card import Card
 from game.player import Player
+
+
+logger = logging.getLogger()
 
 
 class Action(object):
@@ -12,20 +15,8 @@ class Action(object):
     def __str__(self):
         raise NotImplementedError
 
-
-class ActionList(object):
-
-    def __init__(self, actions: List[Action]):
-        self.list = {}
-        for i in range(len(actions)):
-            self.list[i + 1] = actions[i]
-
-    def __iter__(self):
-        for idx, action in self.list.items():
-            yield idx, action
-
-    def add_pass(self, player: Player):
-        self.list[len(self.list) + 1] = NullAction(player=player)
+    def execute(self):
+        raise NotImplementedError
 
 
 class NullAction(Action):
@@ -35,38 +26,67 @@ class NullAction(Action):
     def __str__(self):
         return "Pass"
 
+    def execute(self):
+        return None
 
-class LandSpell(Action):
+
+class DeployLand(Action):
 
     def __init__(self, player: Player, land_card: Card):
         Action.__init__(self, player=player)
         self.land_card = land_card
 
     def __str__(self):
-        return "Pay {} mana - Place land in the board".format(self.land_card.cost)
+        return "Place land on the board"
+
+    def execute(self):
+        assert self.land_card in self.player.hand
+        self.land_card.location = "lands"
+        self.player.lands.append(self.land_card)
+        self.player.hand.remove(self.land_card)
+        self.player.land_spells -= 1
+        logger.info("{} - Played {}".format(self.player.name, self.land_card.name))
+
+        return "ok"
 
 
-def get_hand_actions(player: Player, can_play_land: bool) -> ActionList:
-    hand_actions = []
-    for card in player.hand:
-        if card.cost <= player.mana_pool:
-            if card.type == "land":
-                if can_play_land:
-                    hand_actions.append(create_action_by_card_type(card=card, player=player))
-            else:
-                hand_actions.append(create_action_by_card_type(card=card, player=player))
+class DeployCreature(Action):
 
-    hand_actions_list = ActionList(actions=hand_actions)
+    def __init__(self, player: Player, card: Card):
+        Action.__init__(self, player=player)
+        self.card = card
 
-    return hand_actions_list
+    def __str__(self):
+        return "Place creature on the board"
+
+    def execute(self):
+        assert self.card in self.player.hand
+        self.card.location = "creatures"
+        self.player.creatures.append(self.card)
+        self.player.hand.remove(self.card)
+        logger.info("{} - Played {}".format(self.player.name, self.card.name))
+
+        return "ok"
 
 
-def create_action_by_card_type(card: Card, player: Player):
-    action = None
+class AddBasicMana(Action):
+    def __init__(self, player: Player):
+        Action.__init__(self, player=player)
 
-    if card.type == "land":
-        action = LandSpell(land_card=card, player=player)
+    def __str__(self):
+        return "Add 1 basic mana to your mana pool"
 
-    if action is None:
-        raise ValueError("Error with card type {}".format(card.type))
+    def execute(self):
+        self.player.mana_pool += 1
+        logger.info("{} - Added 1 basic mana to mana pool".format(self.player.name))
+
+        return "ok"
+
+
+def create_action_by_name(player: Player, name: str) -> Action:
+    if name == "add_mana_basic":
+        action = AddBasicMana(player)
+    else:
+        raise ValueError("Action name {} unknown.".format(name))
+
     return action

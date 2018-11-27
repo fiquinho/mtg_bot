@@ -14,8 +14,14 @@ class Player(object):
         self.hand = []
         self.lands = []
         self.mana_pool = 0
+        self.land_spells = 0
+        self.creatures = []
 
     def draw_card(self, cards_count: int=1):
         for i in range(cards_count):
             draw_card = self.deck.draw_card()
+            draw_card.location = "hand"
             self.hand.append(draw_card)
+
+    def refresh_land_spells(self, lands_turn: int):
+        self.land_spells = lands_turn

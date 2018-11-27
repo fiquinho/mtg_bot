@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from game.player import Player
-from game.action import ActionList
+from game.ability import AbilityList
 
 
 logger = logging.getLogger()
@@ -32,11 +32,11 @@ class GameEngine(object):
         logger.info("")
 
     @staticmethod
-    def print_players_actions(actions: ActionList):
-        logger.info("   Available actions:")
-        if len(actions.list) > 0:
-            for i, action in actions:
-                logger.info("       {} _ {}".format(i, action))
+    def print_players_actions(abilities: AbilityList):
+        logger.info("   Available abilities:")
+        if len(abilities.list) > 0:
+            for i, ability in abilities:
+                logger.info("       {} _ {}".format(i, ability))
 
     @staticmethod
     def print_players_hand(player: Player):

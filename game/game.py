@@ -37,11 +37,7 @@ class MagicGame(object):
         self.player_1.draw_card(self.game_config.draw_initial)
         self.player_2.draw_card(self.game_config.draw_initial)
 
-        while not self.game_engine.game_ended:
+        # while not self.game_engine.game_ended:
 
-            turn = Turn(game_engine=self.game_engine, game_config=self.game_config)
-            turn.start()
-
-            if self.game_engine.turns_count > 25:
-                break
-            self.game_engine.turns_count += 1
+        turn = Turn(game_engine=self.game_engine, game_config=self.game_config)
+        turn.start()

@@ -4,5 +4,8 @@
   "other_types": ["basic"],
   "cost": 0,
   "abilities": [{"cost": ["tap_this"],
-                 "actions": ["add_mana_basic"]}]
+                 "actions": ["add_mana_basic"],
+                 "trigger": null,
+                 "available_phases": ["main", "second"]}],
+  "status": "ready"
 }
