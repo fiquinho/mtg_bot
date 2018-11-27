@@ -17,6 +17,7 @@ class Turn(object):
 
     def start(self):
         logger.info("")
+        logger.info("--------------------------------------")
         logger.info("Started turn [ {} ] for player [ {} ]".format(self.game_engine.turns_count, self.player.name))
 
         main_phase = MainPhase(self)
@@ -46,6 +47,8 @@ class MainPhase(Phase):
         self.turn.player.refresh_land_spells(lands_turn=self.turn.game_config.lands_turn)
 
         while True:
+            self.turn.game_engine.print_board_state(self.turn.game_engine.player_1,
+                                                    self.turn.game_engine.player_2)
             self.turn.game_engine.print_players_hand(self.turn.player)
             available_abilities = self.get_available_actions()
             self.turn.game_engine.print_players_actions(available_abilities)

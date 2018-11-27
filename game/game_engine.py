@@ -44,6 +44,32 @@ class GameEngine(object):
         for card in player.hand:
             logger.info("       {}".format(card))
 
+    @staticmethod
+    def print_board_state(player_1: Player, player_2: Player):
+        logger.info("")
+        logger.info("############ Board ############")
+        logger.info("#  {} - board".format(player_1.name))
+        logger.info("#     - Lands:")
+        for land_card in player_1.lands:
+            logger.info("#         + {} - {}".format(land_card.name, land_card.status))
+        logger.info("#     - Creatures:")
+        for creature_card in player_1.creatures:
+            logger.info("#         + {} - {}/{} - {}".format(creature_card.name, creature_card.attack,
+                                                             creature_card.defense, creature_card.status))
+        logger.info("#     - Mana pool = {}".format(player_1.mana_pool))
+
+        logger.info("#  {} - board".format(player_2.name))
+        logger.info("#     - Lands:")
+        for land_card in player_2.lands:
+            logger.info("#         + {} - {}".format(land_card.name, land_card.status))
+        logger.info("#     - Creatures:")
+        for creature_card in player_2.creatures:
+            logger.info("#         + {} - {}/{} - {}".format(creature_card.name, creature_card.attack,
+                                                             creature_card.defence, creature_card.status))
+        logger.info("#     - Mana pool = {}".format(player_2.mana_pool))
+        logger.info("###############################")
+        logger.info("")
+
 
 class GameConfiguration(object):
 
