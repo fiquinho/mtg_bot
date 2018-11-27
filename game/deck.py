@@ -23,8 +23,12 @@ class Deck(object):
             for line in file:
                 self.deck_list.append(line[:-1])
         self.check_deck_cards()
+
+        # Creates a card object for each type of card in the deck
         self.deck_list = [create_card_by_type(card_name) for card_name in self.deck_list]
 
+        # Holds the real time status of a deck (cards have a specific order, and can be
+        # removed from this list)
         self.deck_status = deepcopy(self.deck_list)
 
     def check_deck_cards(self):
@@ -39,6 +43,8 @@ class Deck(object):
     def shuffle_deck(self, seed: int=None):
         """
         Shuffle the deck (self.deck_status).
+
+        :param seed: The seed to use to random. Used on debug.
         """
         if seed is not None:
             random.seed(seed)
