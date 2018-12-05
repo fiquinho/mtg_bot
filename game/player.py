@@ -1,6 +1,8 @@
 from pathlib import Path
+from typing import List
 
 from game.deck import Deck
+from game.card import CreatureCard
 
 
 class Player(object):
@@ -16,6 +18,7 @@ class Player(object):
         self.mana_pool = 0
         self.land_spells = 0
         self.creatures = []
+        self.cemetery = []
 
         self.board = [self.lands, self.creatures]
 
@@ -34,3 +37,9 @@ class Player(object):
     def untap_lands(self):
         for land_card in self.lands:
             land_card.status = "ready"
+
+    def destroy_creatures(self, creatures_list: List[CreatureCard]):
+        for creature in creatures_list:
+            self.creatures.remove(creature)
+            self.cemetery.append(creature)
+            creature.location = "cemetery"

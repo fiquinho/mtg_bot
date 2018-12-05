@@ -1,6 +1,7 @@
 import logging
 import json
 from pathlib import Path
+from typing import List
 
 
 logger = logging.getLogger()
@@ -24,6 +25,9 @@ class Card(object):
         self.location = "deck"
         self.actions = card_data["actions"]
         self.abilities = card_data["abilities"]
+
+        # Used by some abilities to save the current state of the card (i.e. blocking)
+        self.saved_status = None
 
     def __str__(self):
         return self.name
@@ -53,6 +57,23 @@ class CreatureCard(Card):
         self.defense = card_data["defense"]
 
         self.available_phases = ["main", "second"]
+
+        self.blocking_creatures = []
+        self.turn_attack = self.attack
+        self.turn_defense = self.defense
+
+    def creature_combat(self):
+        total_damage = self.turn_attack
+
+        for blocking_creature in self.blocking_creatures:
+            self.turn_defense -= blocking_creature.turn_attack
+
+            if blocking_creature.turn_defense >= total_damage:
+                blocking_creature.turn_defense -= total_damage
+                break
+            else:
+                total_damage -= blocking_creature.turn_defense
+                blocking_creature.turn_defense = 0
 
 
 def create_card_by_type(card: str):

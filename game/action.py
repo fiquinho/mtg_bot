@@ -1,6 +1,6 @@
 import logging
 
-from game.card import Card
+from game.card import Card, CreatureCard
 from game.player import Player
 
 
@@ -83,7 +83,18 @@ class AddBasicMana(Action):
         return "ok"
 
 
-class Attack(Action):
+class PlayerAttack(Action):
+    def __init__(self, player: Player):
+        Action.__init__(self, player=player)
+
+    def __str__(self):
+        return "Attack with selected creatures"
+
+    def execute(self):
+        return "attack"
+
+
+class CreatureAttack(Action):
     def __init__(self, player: Player, card: Card):
         Action.__init__(self, player=player)
         self.card = card
@@ -97,7 +108,34 @@ class Attack(Action):
         return "ok"
 
 
-def create_action_by_name(player: Player, name: str, card: Card=None) -> Action:
+class CreatureBlock(Action):
+    def __init__(self, player: Player, card: Card, attacking_player: Player):
+        Action.__init__(self, player=player)
+        self.card = card
+        self.attacking_player = attacking_player
+
+    def __str__(self):
+        return "Block with creature"
+
+    def execute(self):
+        self.player.blocking_creatures.append(self.card)
+        logger.info("{} please select creature to block: ".format(self.attacking_player.name))
+        for i, attack_creature in enumerate(self.attacking_player.attacking_creatures):
+            logger.info("   {} - {} - {}/{}".format(i, attack_creature.name,
+                                                    attack_creature.attack, attack_creature.defense))
+
+        selection = int(input("{} please select creature to block: ".format(self.attacking_player.name)))
+
+        blocked_creature = self.attacking_player.attacking_creatures[selection - 1]
+        blocked_creature.blocking_creatures.append(blocked_creature)
+        self.card.saved_status = self.card.status
+        self.card.status = "blocking"
+
+        return "ok"
+
+
+def create_action_by_name(player: Player, name: str, card: Card=None,
+                          opponent: Player=None) -> Action:
     if name == "add_mana_basic":
         action = AddBasicMana(player=player)
 
@@ -114,7 +152,12 @@ def create_action_by_name(player: Player, name: str, card: Card=None) -> Action:
     elif name == "attack":
         if card is None:
             raise ValueError("Can't create action Attack with card = None")
-        action = Attack(player=player, card=card)
+        action = CreatureAttack(player=player, card=card)
+
+    elif name == "block":
+        if card is None:
+            raise ValueError("Can't create action Block with card = None")
+        action = CreatureBlock(player=player, card=card, attacking_player=opponent)
 
     else:
         raise ValueError("Action name {} unknown.".format(name))

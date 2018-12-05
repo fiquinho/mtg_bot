@@ -2,7 +2,7 @@ from typing import List
 
 from game.player import Player
 from game.card import Card
-from game.action import Action, create_action_by_name, NullAction
+from game.action import Action, create_action_by_name, NullAction, PlayerAttack
 from game.cost import AbilityCosts
 
 
@@ -43,6 +43,15 @@ class Pass(Ability):
         return "Pass"
 
 
+class StartAttack(Ability):
+    def __init__(self, player: Player):
+        Ability.__init__(self, player=player, card=None, costs=[None],
+                         actions=[PlayerAttack(player)])
+
+    def __str__(self):
+        return "Attack with selected creatures"
+
+
 class AbilityList(object):
 
     def __init__(self, actions: List[Ability]):
@@ -56,6 +65,9 @@ class AbilityList(object):
 
     def add_pass(self, player: Player):
         self.list[len(self.list) + 1] = Pass(player=player)
+
+    def add_attack(self, player: Player):
+        self.list[len(self.list) + 1] = StartAttack(player=player)
 
 
 def get_hand_abilities(player: Player, phase: str) -> List[Ability]:

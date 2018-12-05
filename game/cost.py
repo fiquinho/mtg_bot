@@ -38,6 +38,17 @@ class BaseCost(object):
         raise NotImplementedError
 
 
+class NoneCost(BaseCost):
+    def __init__(self):
+        pass
+
+    def check_cost(self, player: Player, card: Card):
+        pass
+
+    def pay_cost(self, player: Player, card: Card):
+        pass
+
+
 class ManaCost(BaseCost):
     def __init__(self, mana_cost):
         self.mana_cost = mana_cost
@@ -71,13 +82,28 @@ class LandSpell(BaseCost):
         player.land_spells -= 1
 
 
+class CardReady(BaseCost):
+    def __init__(self):
+        pass
+
+    def check_cost(self, player: Player, card: Card):
+        return card.status == "ready"
+
+    def pay_cost(self, player: Player, card: Card):
+        pass
+
+
 def create_cost_instance(cost) -> BaseCost:
-    if type(cost) == int:
+    if cost is None:
+        cost_instance = NoneCost()
+    elif type(cost) == int:
         cost_instance = ManaCost(cost)
     elif cost == "tap_this":
         cost_instance = TapCard()
     elif cost == "land_spell":
         cost_instance = LandSpell()
+    elif cost == "ready":
+        cost_instance = CardReady()
     else:
         raise ValueError("{} mana cost unknown".format(cost))
 
