@@ -62,6 +62,9 @@ class CreatureCard(Card):
         self.turn_attack = self.attack
         self.turn_defense = self.defense
 
+    def __str__(self):
+        return "{} - Creature {}/{} - Costs {}".format(self.name, self.attack, self.defense, self.cost)
+
     def creature_combat(self):
         total_damage = self.turn_attack
 

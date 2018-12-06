@@ -7,7 +7,11 @@ from game.game import MagicGame
 
 
 logger = logging.getLogger()
-logging.basicConfig(level=logging.INFO)
+logger.setLevel(logging.INFO)
+fmt = logging.Formatter('[ Test game ] %(message)s ', '%p')
+console = logging.StreamHandler()
+console.setFormatter(fmt)
+logger.addHandler(console)
 
 
 def play_magic(game_config_dir: Path, player_1_deck_file: Path,

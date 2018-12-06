@@ -37,18 +37,21 @@ class GameEngine(object):
         if len(abilities.list) > 0:
             for i, ability in abilities:
                 logger.info("       {} _ {}".format(i, ability))
+        logger.info("")
 
     @staticmethod
     def print_players_hand(player: Player):
         logger.info("   Player hand:")
         for card in player.hand:
-            logger.info("       {}".format(card))
+            logger.info("      - {}".format(card))
+        logger.info("")
 
     @staticmethod
     def print_board_state(player_1: Player, player_2: Player):
         logger.info("")
         logger.info("############ Board ############")
         logger.info("#  {} - board".format(player_1.name))
+        logger.info("#     - Health points: {}".format(player_1.health_points))
         logger.info("#     - Lands:")
         for land_card in player_1.lands:
             logger.info("#         + {} - {}".format(land_card.name, land_card.status))
@@ -59,6 +62,7 @@ class GameEngine(object):
         logger.info("#     - Mana pool = {}".format(player_1.mana_pool))
 
         logger.info("#  {} - board".format(player_2.name))
+        logger.info("#     - Health points: {}".format(player_2.health_points))
         logger.info("#     - Lands:")
         for land_card in player_2.lands:
             logger.info("#         + {} - {}".format(land_card.name, land_card.status))
@@ -70,6 +74,13 @@ class GameEngine(object):
         logger.info("###############################")
         logger.info("")
 
+    @staticmethod
+    def print_attacking_creatures(player: Player):
+        logger.info("   Attacking creatures:")
+        for card in player.attacking_creatures:
+            logger.info("      - {}".format(card))
+        logger.info("")
+
 
 class GameConfiguration(object):
 
@@ -79,7 +90,7 @@ class GameConfiguration(object):
             game_config = json.load(file)
         logger.info("Game configurations:")
         for key, value in game_config.items():
-            logger.info("{} = {}".format(key, value))
+            logger.info("   - {} = {}".format(key, value))
 
         self.name = game_config["name"]
         self.players_life = game_config["players_life"]

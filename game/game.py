@@ -26,6 +26,8 @@ class MagicGame(object):
         self.game_engine = GameEngine(player_1=self.player_1, player_2=self.player_2)
 
     def start_game(self):
+        fmt = logging.Formatter('[ Start game ] %(message)s ', '%p')
+        logger.handlers[0].setFormatter(fmt)
 
         self.game_engine.start_game(game_name=self.game_config.name)
 

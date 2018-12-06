@@ -27,6 +27,7 @@ class NullAction(Action):
         return "Pass"
 
     def execute(self):
+        logger.info("{} - Passed".format(self.player.name))
         return None
 
 
@@ -44,7 +45,6 @@ class DeployLand(Action):
         self.land_card.location = "lands"
         self.player.lands.append(self.land_card)
         self.player.hand.remove(self.land_card)
-        self.player.land_spells -= 1
         logger.info("{} - Played {}".format(self.player.name, self.land_card.name))
 
         return "ok"
@@ -104,6 +104,8 @@ class CreatureAttack(Action):
 
     def execute(self):
         self.player.attacking_creatures.append(self.card)
+        logger.info("{} - Added {} to attacking creatures".format(self.player.name,
+                                                                  self.card.name))
 
         return "ok"
 

@@ -16,6 +16,11 @@ class Turn(object):
         self.opponent = game_engine.player_focus_not
 
     def start(self):
+
+        fmt = logging.Formatter('[ Turn {} start - {} ] %(message)s '.format(self.game_engine.turns_count,
+                                                                             self.player.name), '%p')
+        logger.handlers[0].setFormatter(fmt)
+
         logger.info("")
         logger.info("--------------------------------------")
         logger.info("--------------------------------------")
@@ -51,8 +56,10 @@ class Turn(object):
     def check_win(self):
         if self.player.health_points <= 0:
             logger.info("{} wins !!".format(self.player.name))
+            exit()
         if self.opponent.health_points <= 0:
             logger.info("{} wins !!".format(self.opponent.name))
+            exit()
 
 
 class Phase(object):
@@ -76,12 +83,19 @@ class Phase(object):
         return final_abilities_list
 
 
+# TODO: Untap and draw phase
+
+
 class MainPhase(Phase):
     def __init__(self, turn: Turn):
         Phase.__init__(self, turn)
         self.name = "main"
 
     def start_phase(self):
+        fmt = logging.Formatter('[ Turn {} - Main phase - {} ] %(message)s '.format(self.turn.game_engine.turns_count,
+                                                                                    self.turn.player.name), '%p')
+        logger.handlers[0].setFormatter(fmt)
+
         logger.info("")
         logger.info("--------------------------------------")
         logger.info("Main phase start - {}".format(self.turn.player.name))
@@ -94,7 +108,6 @@ class MainPhase(Phase):
             self.turn.game_engine.print_players_hand(self.turn.player)
             available_abilities = self.get_available_abilities()
             self.turn.game_engine.print_players_actions(available_abilities)
-            logger.info("{} please select an ability: ".format(self.turn.player.name))
 
             # Player selection
             while True:
@@ -118,6 +131,10 @@ class AttackPhase(Phase):
         self.name = "attack"
 
     def start_phase(self):
+        fmt = logging.Formatter('[ Turn {} - Attack phase - {} ] %(message)s '.format(self.turn.game_engine.turns_count,
+                                                                                      self.turn.player.name), '%p')
+        logger.handlers[0].setFormatter(fmt)
+
         logger.info("")
         logger.info("--------------------------------------")
         logger.info("Attack phase start - {}".format(self.turn.player.name))
@@ -126,15 +143,14 @@ class AttackPhase(Phase):
             self.turn.game_engine.print_board_state(self.turn.game_engine.player_1,
                                                     self.turn.game_engine.player_2)
 
-            logger.info("   Available creatures:")
+            self.turn.game_engine.print_attacking_creatures(self.turn.player)
 
             available_abilities = self.get_available_abilities()
             self.turn.game_engine.print_players_actions(available_abilities)
-            logger.info("{} please select creature to attack: ".format(self.turn.player.name))
 
             # Player selection
             while True:
-                selection = input("{} please select one ability: ".format(self.turn.player.name))
+                selection = input("{} please select attacking creature: ".format(self.turn.player.name))
                 try:
                     selected_ability = available_abilities.list[int(selection)]
                     break
@@ -154,6 +170,9 @@ class AttackPhase(Phase):
 
                 block_phase = BlockPhase(self.turn)
                 block_phase.start_phase()
+
+                damage_phase = DamagePhase(self.turn)
+                damage_phase.start_phase()
 
     def get_available_abilities(self):
         abilities_list = get_hand_abilities(player=self.turn.player, phase=self.name)
@@ -177,6 +196,10 @@ class BlockPhase(Phase):
         self.name = "attack"
 
     def start_phase(self):
+        fmt = logging.Formatter('[ Turn {} - Block phase - {} ] %(message)s '.format(self.turn.game_engine.turns_count,
+                                                                                     self.turn.opponent.name), '%p')
+        logger.handlers[0].setFormatter(fmt)
+
         logger.info("")
         logger.info("--------------------------------------")
         logger.info("Block phase start - {}".format(self.turn.opponent.name))
@@ -221,9 +244,11 @@ class DamagePhase(Phase):
         self.name = "damage"
 
     def start_phase(self):
-        # TODO: Damage phase
-        pass
+        for creature in self.turn.player.attacking_creatures:
+            creature.creature_combat()
 
+        self.turn.destroy_creatures()
+        self.turn.check_win()
 
 
 class SecondPhase(Phase):
@@ -232,6 +257,12 @@ class SecondPhase(Phase):
         self.name = "second"
 
     def start_phase(self):
+        fmt = logging.Formatter('[ Turn {} - Second phase - {} ] %(message)s '.format(self.turn.game_engine.turns_count,
+                                                                                      self.turn.player.name), '%p')
+        logger.handlers[0].setFormatter(fmt)
+
+        logger.info("")
+        logger.info("--------------------------------------")
         logger.info("Second phase start - {}".format(self.turn.player.name))
 
         while True:
