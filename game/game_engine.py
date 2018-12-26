@@ -22,6 +22,11 @@ class GameEngine(object):
         self.turns_count = 0
         self.game_ended = False
 
+    def change_player_focus(self):
+        old_focus = self.player_focus
+        self.player_focus = self.player_focus_not
+        self.player_focus_not = old_focus
+
     @staticmethod
     def start_game(game_name: str):
         logger.info("")
@@ -69,7 +74,7 @@ class GameEngine(object):
         logger.info("#     - Creatures:")
         for creature_card in player_2.creatures:
             logger.info("#         + {} - {}/{} - {}".format(creature_card.name, creature_card.attack,
-                                                             creature_card.defence, creature_card.status))
+                                                             creature_card.defense, creature_card.status))
         logger.info("#     - Mana pool = {}".format(player_2.mana_pool))
         logger.info("###############################")
         logger.info("")
@@ -99,6 +104,7 @@ class GameConfiguration(object):
         self.max_cards_hand = game_config["max_cards_hand"]
         self.top_deck = game_config["top_deck"]
         self.lands_turn = game_config["lands_turn"]
+        self.shuffle_decks = game_config["shuffle_decks"]
 
     def __str__(self):
         return "Magic game - {}".format(self.name)

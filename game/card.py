@@ -65,19 +65,9 @@ class CreatureCard(Card):
     def __str__(self):
         return "{} - Creature {}/{} - Costs {}".format(self.name, self.attack, self.defense, self.cost)
 
-    def creature_combat(self):
-        total_damage = self.turn_attack
-
-        for blocking_creature in self.blocking_creatures:
-            self.turn_defense -= blocking_creature.turn_attack
-
-            if blocking_creature.turn_defense >= total_damage:
-                blocking_creature.turn_defense -= total_damage
-                break
-            else:
-                total_damage -= blocking_creature.turn_defense
-                blocking_creature.turn_defense = 0
-
+    def reset(self):
+        self.turn_attack = self.attack
+        self.turn_defense = self.defense
 
 def create_card_by_type(card: str):
     card_data_file = Path(CARDS_PATH, card + ".json")

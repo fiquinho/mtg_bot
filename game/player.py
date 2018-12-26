@@ -38,8 +38,19 @@ class Player(object):
         for land_card in self.lands:
             land_card.status = "ready"
 
+    def untap_creatures(self):
+        for creature in self.creatures:
+            creature.status = "ready"
+
+    def clear_attacking_creatures(self):
+        self.attacking_creatures = []
+
     def destroy_creatures(self, creatures_list: List[CreatureCard]):
         for creature in creatures_list:
             self.creatures.remove(creature)
             self.cemetery.append(creature)
             creature.location = "cemetery"
+
+    def reset_creatures(self):
+        for creature in self.creatures:
+            creature.reset()

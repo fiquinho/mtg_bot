@@ -2,6 +2,7 @@ import logging
 
 from game.game_engine import GameConfiguration, GameEngine
 from game.ability import get_hand_abilities, get_board_abilities, AbilityList
+from game.card import CreatureCard
 
 
 logger = logging.getLogger()
@@ -44,21 +45,27 @@ class Turn(object):
         destroy_creatures = []
         for creature in self.player.creatures:
             if creature.turn_defense <= 0:
-                destroy_creatures.append(destroy_creatures)
+                destroy_creatures.append(creature)
         self.player.destroy_creatures(destroy_creatures)
 
         destroy_creatures = []
         for creature in self.opponent.creatures:
             if creature.turn_defense <= 0:
-                destroy_creatures.append(destroy_creatures)
+                destroy_creatures.append(creature)
         self.opponent.destroy_creatures(destroy_creatures)
+
+    def reset_creatures(self):
+        self.player.reset_creatures()
+        self.opponent.reset_creatures()
 
     def check_win(self):
         if self.player.health_points <= 0:
             logger.info("{} wins !!".format(self.player.name))
+            self.game_engine.game_ended = True
             exit()
         if self.opponent.health_points <= 0:
             logger.info("{} wins !!".format(self.opponent.name))
+            self.game_engine.game_ended = True
             exit()
 
 
@@ -74,7 +81,7 @@ class Phase(object):
     def get_available_abilities(self):
         abilities_list = get_hand_abilities(player=self.turn.player, phase=self.name)
 
-        board_abilities = get_board_abilities(player=self.turn.player, phase=self.name)
+        board_abilities = get_board_abilities(player=self.turn.player, phase=self.name, opponent=self.turn.opponent)
         if len(board_abilities) >= 1:
             abilities_list += board_abilities
 
@@ -101,6 +108,7 @@ class MainPhase(Phase):
         logger.info("Main phase start - {}".format(self.turn.player.name))
         self.turn.player.refresh_land_spells(lands_turn=self.turn.game_config.lands_turn)
         self.turn.player.untap_lands()
+        self.turn.player.untap_creatures()
 
         while True:
             self.turn.game_engine.print_board_state(self.turn.game_engine.player_1,
@@ -153,6 +161,7 @@ class AttackPhase(Phase):
                 selection = input("{} please select attacking creature: ".format(self.turn.player.name))
                 try:
                     selected_ability = available_abilities.list[int(selection)]
+                    logger.info("Selected ability {}".format(selection))
                     break
                 except KeyError:
                     logger.info("[ {} ] not in available choices".format(selection))
@@ -174,10 +183,13 @@ class AttackPhase(Phase):
                 damage_phase = DamagePhase(self.turn)
                 damage_phase.start_phase()
 
+                break
+
     def get_available_abilities(self):
         abilities_list = get_hand_abilities(player=self.turn.player, phase=self.name)
 
-        board_abilities = get_board_abilities(player=self.turn.player, phase=self.name)
+        board_abilities = get_board_abilities(player=self.turn.player, phase=self.name,
+                                              opponent=self.turn.opponent)
         if len(board_abilities) >= 1:
             abilities_list += board_abilities
 
@@ -193,7 +205,7 @@ class AttackPhase(Phase):
 class BlockPhase(Phase):
     def __init__(self, turn: Turn):
         Phase.__init__(self, turn)
-        self.name = "attack"
+        self.name = "block"
 
     def start_phase(self):
         fmt = logging.Formatter('[ Turn {} - Block phase - {} ] %(message)s '.format(self.turn.game_engine.turns_count,
@@ -205,15 +217,15 @@ class BlockPhase(Phase):
         logger.info("Block phase start - {}".format(self.turn.opponent.name))
 
         while True:
-            logger.info("   Available creatures:")
+            self.turn.game_engine.print_board_state(self.turn.game_engine.player_1,
+                                                    self.turn.game_engine.player_2)
 
             available_abilities = self.get_available_abilities()
             self.turn.game_engine.print_players_actions(available_abilities)
-            logger.info("{} please select creature to block: ".format(self.turn.player.name))
 
             # Player selection
             while True:
-                selection = input("{} please select one ability: ".format(self.turn.player.name))
+                selection = input("{} please creature to block: ".format(self.turn.opponent.name))
                 try:
                     selected_ability = available_abilities.list[int(selection)]
                     break
@@ -226,15 +238,16 @@ class BlockPhase(Phase):
                 break
 
     def get_available_abilities(self):
-        abilities_list = get_hand_abilities(player=self.turn.player, phase=self.name)
+        abilities_list = get_hand_abilities(player=self.turn.opponent, phase=self.name)
 
-        board_abilities = get_board_abilities(player=self.turn.player, phase=self.name)
+        board_abilities = get_board_abilities(player=self.turn.opponent, phase=self.name,
+                                              opponent=self.turn.player)
         if len(board_abilities) >= 1:
             abilities_list += board_abilities
 
         final_abilities_list = AbilityList(abilities_list)
 
-        final_abilities_list.add_pass(player=self.turn.player)
+        final_abilities_list.add_pass(player=self.turn.opponent)
         return final_abilities_list
 
 
@@ -245,10 +258,28 @@ class DamagePhase(Phase):
 
     def start_phase(self):
         for creature in self.turn.player.attacking_creatures:
-            creature.creature_combat()
+            self.creature_combat(creature)
 
         self.turn.destroy_creatures()
         self.turn.check_win()
+        self.turn.player.clear_attacking_creatures()
+        self.turn.reset_creatures()
+
+    def creature_combat(self, creature: CreatureCard):
+        total_damage = creature.turn_attack
+
+        if len(creature.blocking_creatures) > 0:
+            for blocking_creature in creature.blocking_creatures:
+                creature.turn_defense -= blocking_creature.turn_attack
+
+                if blocking_creature.turn_defense >= total_damage:
+                    blocking_creature.turn_defense -= total_damage
+                    break
+                else:
+                    total_damage -= blocking_creature.turn_defense
+                    blocking_creature.turn_defense = 0
+        else:
+            self.turn.opponent.health_points -= total_damage
 
 
 class SecondPhase(Phase):
@@ -271,11 +302,10 @@ class SecondPhase(Phase):
             self.turn.game_engine.print_players_hand(self.turn.player)
             available_abilities = self.get_available_abilities()
             self.turn.game_engine.print_players_actions(available_abilities)
-            logger.info("{} please select an ability: ".format(self.turn.player.name))
 
             # Player selection
             while True:
-                selection = input("{} please select action: ".format(self.turn.player.name))
+                selection = input("{} please select ability: ".format(self.turn.player.name))
                 try:
                     selected_ability = available_abilities.list[int(selection)]
                     break

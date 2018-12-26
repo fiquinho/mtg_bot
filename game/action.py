@@ -126,10 +126,10 @@ class CreatureBlock(Action):
             logger.info("   {} - {} - {}/{}".format(i, attack_creature.name,
                                                     attack_creature.attack, attack_creature.defense))
 
-        selection = int(input("{} please select creature to block: ".format(self.attacking_player.name)))
+        selection = int(input("{} please select creature to block: ".format(self.player.name)))
 
-        blocked_creature = self.attacking_player.attacking_creatures[selection - 1]
-        blocked_creature.blocking_creatures.append(blocked_creature)
+        blocked_creature = self.attacking_player.attacking_creatures[selection]
+        blocked_creature.blocking_creatures.append(self.card)
         self.card.saved_status = self.card.status
         self.card.status = "blocking"
 

@@ -91,14 +91,15 @@ def get_hand_abilities(player: Player, phase: str) -> List[Ability]:
     return hand_abilities
 
 
-def get_board_abilities(player: Player, phase: str) -> List[Ability]:
+def get_board_abilities(player: Player, phase: str, opponent: Player) -> List[Ability]:
 
     board_actions = []
 
     for board_group in player.board:
         for card in board_group:
             for ability in card.abilities:
-                ability_object = create_card_ability(player, card=card, ability_data=ability, phase=phase)
+                ability_object = create_card_ability(player, card=card, ability_data=ability,
+                                                     phase=phase, opponent=opponent)
 
                 if ability_object is not None:
                     board_actions.append(ability_object)
@@ -106,13 +107,14 @@ def get_board_abilities(player: Player, phase: str) -> List[Ability]:
     return board_actions
 
 
-def create_card_ability(player: Player, card: Card, ability_data: dict, phase: str):
+def create_card_ability(player: Player, card: Card, ability_data: dict, phase: str,
+                        opponent: Player):
     ability_cost = ability_data["cost"]
 
     if phase in ability_data["available_phases"]:
         actions = []
         for action in ability_data["actions"]:
-            actions.append(create_action_by_name(player, action, card))
+            actions.append(create_action_by_name(player, action, card, opponent))
 
         ability = Ability(player=player, costs=ability_cost,
                           actions=actions, card=card)

@@ -32,14 +32,17 @@ class MagicGame(object):
         self.game_engine.start_game(game_name=self.game_config.name)
 
         # Shuffle the decks
-        self.player_1.deck.shuffle_deck()
-        self.player_2.deck.shuffle_deck()
+        if self.game_config.shuffle_decks:
+            self.player_1.deck.shuffle_deck()
+            self.player_2.deck.shuffle_deck()
 
         # Each player draws the first hand
         self.player_1.draw_card(self.game_config.draw_initial)
         self.player_2.draw_card(self.game_config.draw_initial)
 
-        # while not self.game_engine.game_ended:
+        while not self.game_engine.game_ended:
+            turn = Turn(game_engine=self.game_engine, game_config=self.game_config)
+            turn.start()
 
-        turn = Turn(game_engine=self.game_engine, game_config=self.game_config)
-        turn.start()
+            self.game_engine.change_player_focus()
+            self.game_engine.turns_count += 1
